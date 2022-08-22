@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-zsj%bkx!@z7gmn@*_8d_x8)ur=y7xvl-d@@c_ia^+=&9##3l0i
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1','https://task2sweet.herokuapp.com/']
+ALLOWED_HOSTS = ['127.0.0.1','task2sweet.herokuapp.com/']
 
 AUTH_USER_MODEL = 'accounts.User'
 
