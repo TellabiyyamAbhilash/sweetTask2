@@ -1,11 +1,12 @@
 from django.views.generic import CreateView,DetailView,ListView
-from accounts.models import Doctor,Patient,User,Blog,Category
-from accounts.forms import DoctorSignupForm,PatientSignupForm,Blog_Form
+from accounts.models import Doctor,Patient,User,Blog,Category,Appointment
+from accounts.forms import DoctorSignupForm,PatientSignupForm,Blog_Form,Appointment_Form
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render,redirect,reverse
 from django.contrib import messages
 from django.contrib.auth import login,logout,authenticate
 from django.contrib.auth.decorators import login_required
+from django.db.models import Max
 # Create your views here.
 def register(request):
     return render(request, 'register.html')
@@ -33,22 +34,23 @@ class patient_register(CreateView):
         login(self.request, user)
         return redirect('patientlogin')
 
-
 def doctor_login_request(request):
      if request.method=="POST":
          form = AuthenticationForm(data=request.POST)
          if form.is_valid():
              username=form.cleaned_data.get("username")
              password=form.cleaned_data.get("password")
+             doc = User.objects.get(username=username)
+             m=doc.id
              user=authenticate(username=username,password=password)
              if user is not None:
                  login(request,user)
-                 return render(request,"ask.html")
+                 return render(request,"ask.html",{'m': m})
              else:
                 messages.error(request,'Invalid username or password')
          else:
             messages.error(request,'Invalid username or password')
-     return render(request,'login.html',context={'form':AuthenticationForm()})
+     return render(request,'login.html',{'form':AuthenticationForm()})
 
 
 def patient_login_request(request):
@@ -57,10 +59,12 @@ def patient_login_request(request):
          if form.is_valid():
              username=form.cleaned_data.get("username")
              password=form.cleaned_data.get("password")
+             doc = User.objects.get(username=username)
+             m=doc.id
              user=authenticate(username=username,password=password)
              if user is not None:
                  login(request,user)
-                 return redirect('showblogs')
+                 return render(request,'patlogin.html',{'m': m})
              else:
                 messages.error(request,'Invalid username or password')
          else:
@@ -79,13 +83,19 @@ class patient_details(DetailView):
     model=Patient
     template_name='patdetails.html'
 
+class showdoctors(ListView):
+    model=Doctor
+    template_name='showdoctors.html'
+
 def addblog(request):
     form=Blog_Form()
     if request.method=='POST':
         form=Blog_Form(request.POST,request.FILES)
+        bg = Blog.objects.get(id=id)
+        m=bg.id
         if form.is_valid():
             form.save()
-            return redirect(reverse('showblogs'))
+            return render(request,'blogDetail.html',{'m': m})
     else:
         form=Blog_Form()
     context={
@@ -100,3 +110,22 @@ class showblogs(ListView):
 class blogDetail(DetailView):
     model=Blog
     template_name='blogdetail.html'
+
+def addappointment(request):
+    form=Appointment_Form()
+    if request.method=='POST':
+        form=Appointment_Form(request.POST,request.FILES)
+        if form.is_valid():
+            form.save()
+            apt=Appointment.objects.aggregate(Max('id'))
+            return render(request,'patlogin.html',apt)
+    else:
+        form=Appointment_Form()
+    context={
+        'form':form
+    }
+    return render(request,'addappointment.html',context)
+
+class AppointmentDetail(DetailView):
+    model=Appointment
+    template_name='Appointmentdetail.html'

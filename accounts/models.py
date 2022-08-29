@@ -49,3 +49,12 @@ class Blog(models.Model):
     content = models.CharField(max_length=250)
     def get_absolute_url(self):
         return reverse('blog',kwargs={'pk':self.pk})
+
+class Appointment(models.Model):
+    speciality = models.CharField(max_length=100,null=False,blank=False)
+    date = models.DateField()
+    doctor = models.ForeignKey(Doctor,on_delete=models.CASCADE,default=True,null=False)
+    time = models.TimeField()
+
+    def get_absolute_url(self):
+        return reverse('appointment',kwargs={'pk':self.pk})

@@ -1,7 +1,7 @@
 
 from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
-from accounts.models import Doctor,Patient,User,Blog
+from accounts.models import Doctor,Patient,User,Blog,Appointment
 from django import forms
 
 class DoctorSignupForm(UserCreationForm):
@@ -74,4 +74,15 @@ class Blog_Form(forms.ModelForm):
                 'category':forms.Select(attrs={'class':'form-control'}),
                 'summary':forms.TextInput(attrs={'class':'form-control'}),
                 'content':forms.TextInput(attrs={'class':'form- control'})
+        }
+
+class Appointment_Form(forms.ModelForm):
+    class Meta:
+        model = Appointment
+        fields=['speciality','date','doctor','time']
+        widgets = {
+                'speciality':forms.TextInput(attrs={'class':'form-control'}),
+                'doctor':forms.Select(attrs={'class':'form-control'}),
+                'date':forms.DateInput(),
+                'time':forms.TimeInput()
         }
